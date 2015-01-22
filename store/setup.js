@@ -12,9 +12,10 @@ console.log("\n===================")
 console.log("Store Set-up Script")
 console.log("===================\n")
 
-// create, destroy
+// create or destroy
 var command = process.argv[2];
 
+// Load configuration file
 fs.readFile("../config.json", function (error, data) {
     var config = JSON.parse(data);
 
@@ -24,6 +25,7 @@ fs.readFile("../config.json", function (error, data) {
     var client = new cassandra.Client({contactPoints: config.cassandra.contactPoints});
     
     if (command === 'create') {    
+
         console.log("Creating keyspace...");
 
         var query = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
@@ -32,17 +34,25 @@ fs.readFile("../config.json", function (error, data) {
         console.log("Executing: \n" + query + "\n");
         
         client.execute(query, [], {prepare: true}, function (err) {
-            if (err) {
+            if (err)
                 throw Error(err)
-            }
             console.log("Keyspace " + config.cassandra.keyspace + " created...");
+            client.shutdown();
         });
-    } else if (command === 'destory') {
+
+    } else if (command === 'destroy') {
+
         console.log("Destroying keyspace...");
+        var query = "DROP KEYSPACE " + config.cassandra.keyspace + ";";
+        
+        client.execute(query, [], {prepare: true}, function (err) {
+            if (err) 
+                throw Error(err)
+            console.log("Keyspace " + config.cassandra.keyspace + " destroyed...");
+            client.shutdown();
+        });
 
     } else {
         console.log("Unknown command '" + command + "'.\aAvailable commands: 'create', 'destroy'");
     }
-
-    client.shutdown();
 });

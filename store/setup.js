@@ -19,28 +19,30 @@ fs.readFile("../config.json", function (error, data) {
     var config = JSON.parse(data);
 
     console.log("keyspace: " + config.cassandra.keyspace);
-    console.log("contactPoints: " + config.cassandra.contactPoints.join(", "));
-    console.log();
+    console.log("contactPoints: " + config.cassandra.contactPoints.join(", ") + "\n");
 
     var client = new cassandra.Client({contactPoints: config.cassandra.contactPoints});
     
     if (command === 'create') {    
         console.log("Creating keyspace...");
 
-        createKeyspaceQuery = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
-                                  "WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
+        var query = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
+                        "WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
 
-        console.log("Executing: \n" + createKeyspaceQuery + "\n");
+        console.log("Executing: \n" + query + "\n");
         
-        client.execute(createKeyspaceQuery, [], {prepare: true}, function (err) {
-            if (err)
+        client.execute(query, [], {prepare: true}, function (err) {
+            if (err) {
                 throw Error(err)
+            }
             console.log("Keyspace " + config.cassandra.keyspace + " created...");
-            client.shutdown();
         });
     } else if (command === 'destory') {
-        console.log("destroying keyspace...");
+        console.log("Destroying keyspace...");
+
     } else {
-        console.log("Unknown command '" + command + "'.\nAvailable commands: 'create', 'destroy'");
+        console.log("Unknown command '" + command + "'.\aAvailable commands: 'create', 'destroy'");
     }
+
+    client.shutdown();
 });

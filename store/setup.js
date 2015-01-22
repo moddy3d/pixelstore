@@ -16,46 +16,45 @@ console.log("===================\n")
 var command = process.argv[2];
 
 // Load configuration file
-fs.readFile("../config.json", function (error, data) {
-    var config = JSON.parse(data);
+var data = fs.readFileSync("../config.json");
+var config = JSON.parse(data);
 
-    console.log("keyspace: " + config.cassandra.keyspace);
-    console.log("contactPoints: " + config.cassandra.contactPoints.join(", ") + "\n");
+console.log("keyspace: " + config.cassandra.keyspace);
+console.log("contactPoints: " + config.cassandra.contactPoints.join(", ") + "\n");
 
-    var client = new cassandra.Client({contactPoints: config.cassandra.contactPoints});
+var client = new cassandra.Client({contactPoints: config.cassandra.contactPoints});
+
+if (command === 'create') {    
+
+    console.log("Creating keyspace...");
+
+    var query = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
+                    "WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
+    console.log("Executing: \n" + query + "\n");
     
-    if (command === 'create') {    
+    client.execute(query, [], {prepare: true}, function (err) {
+        if (err)
+            console.log(err);
+        else
+            console.log("Keyspace " + config.cassandra.keyspace + " created...");
+        client.shutdown();
+    });
 
-        console.log("Creating keyspace...");
+} else if (command === 'destroy') {
 
-        var query = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
-                        "WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
-        console.log("Executing: \n" + query + "\n");
-        
-        client.execute(query, [], {prepare: true}, function (err) {
-            if (err)
-                console.log(err);
-            else
-                console.log("Keyspace " + config.cassandra.keyspace + " created...");
-            client.shutdown();
-        });
+    console.log("Destroying keyspace...");
 
-    } else if (command === 'destroy') {
+    var query = "DROP KEYSPACE " + config.cassandra.keyspace + ";";
+    console.log("Executing: \n" + query + "\n");
+    
+    client.execute(query, [], {prepare: true}, function (err) {
+        if (err) 
+            console.log(err);
+        else
+            console.log("Keyspace " + config.cassandra.keyspace + " destroyed...");
+        client.shutdown();
+    });
 
-        console.log("Destroying keyspace...");
-
-        var query = "DROP KEYSPACE " + config.cassandra.keyspace + ";";
-        console.log("Executing: \n" + query + "\n");
-        
-        client.execute(query, [], {prepare: true}, function (err) {
-            if (err) 
-                console.log(err);
-            else
-                console.log("Keyspace " + config.cassandra.keyspace + " destroyed...");
-            client.shutdown();
-        });
-
-    } else {
-        console.log("Unknown command '" + command + "'.\aAvailable commands: 'create', 'destroy'");
-    }
-});
+} else {
+    console.log("Unknown command '" + command + "'.\aAvailable commands: 'create', 'destroy'");
+}

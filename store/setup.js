@@ -30,7 +30,6 @@ fs.readFile("../config.json", function (error, data) {
 
         var query = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
                         "WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
-
         console.log("Executing: \n" + query + "\n");
         
         client.execute(query, [], {prepare: true}, function (err) {
@@ -44,7 +43,9 @@ fs.readFile("../config.json", function (error, data) {
     } else if (command === 'destroy') {
 
         console.log("Destroying keyspace...");
+
         var query = "DROP KEYSPACE " + config.cassandra.keyspace + ";";
+        console.log("Executing: \n" + query + "\n");
         
         client.execute(query, [], {prepare: true}, function (err) {
             if (err) 

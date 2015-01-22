@@ -35,8 +35,9 @@ fs.readFile("../config.json", function (error, data) {
         
         client.execute(query, [], {prepare: true}, function (err) {
             if (err)
-                throw Error(err)
-            console.log("Keyspace " + config.cassandra.keyspace + " created...");
+                console.log(err);
+            else
+                console.log("Keyspace " + config.cassandra.keyspace + " created...");
             client.shutdown();
         });
 
@@ -47,8 +48,9 @@ fs.readFile("../config.json", function (error, data) {
         
         client.execute(query, [], {prepare: true}, function (err) {
             if (err) 
-                throw Error(err)
-            console.log("Keyspace " + config.cassandra.keyspace + " destroyed...");
+                console.log(err);
+            else
+                console.log("Keyspace " + config.cassandra.keyspace + " destroyed...");
             client.shutdown();
         });
 

@@ -1,26 +1,21 @@
 {
   "name": "pixelstore",
   "version": "0.0.0",
-  "description": "Distributed Image Store",
-  "main": "start.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/moddy3d/pixelstore"
-  },
-  "keywords": [
-    "distributed",
-    "image",
-    "store",
-    "cassandra",
-    "elasticsearch"
-  ],
-  "author": "Richard Lei",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/moddy3d/pixelstore/issues"
-  },
-  "homepage": "https://github.com/moddy3d/pixelstore"
+  "dependencies": {
+    "body-parser": "~1.10.2",
+    "cassandra-client": "^0.15.2",
+    "cookie-parser": "~1.3.3",
+    "debug": "~2.1.1",
+    "elasticsearch": "^3.1.1",
+    "express": "~4.11.1",
+    "install": "^0.1.8",
+    "jade": "~1.9.1",
+    "morgan": "~1.5.1",
+    "npm": "^2.2.0",
+    "serve-favicon": "~2.2.0"
+  }
 }

@@ -45,8 +45,6 @@ Store.prototype.setup = function ( keyspace, callback ) {
             console.log(err);
             this_.client.shutdown();
         } else {
-            console.log("Keyspace " + keyspace + " created.");
-
             // The keyspace has been successfully created, let's connect to it 
             this_.connect(keyspace);
 
@@ -71,7 +69,6 @@ Store.prototype.setup = function ( keyspace, callback ) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log("Created IMAGES table.");
                     createTagImageIndexTable();
                 }
             });
@@ -91,8 +88,6 @@ Store.prototype.setup = function ( keyspace, callback ) {
 
                 if (err)
                     console.log(err);
-                else
-                    console.log("Created TAG_IMAGE_INDEX table.");
 
                 if (callback)
                     callback();
@@ -110,51 +105,77 @@ Store.prototype.destroy = function ( keyspace, callback ) {
     this.client.execute(destroy, [], {prepare: true}, function (err) {
         if (err) 
             console.log(err);
-        else
-            console.log("Keyspace " + config.cassandra.keyspace + " destroyed...");
 
         if (callback)
             callback();
     });
 };
 
-Store.prototype.addImage = function ( id, user, tags, data, type ) {
+Store.prototype.addImage = function ( id, user, tags, data, type, callback ) {
     
     /* Add a new image to the database */
-
-};
-
-Store.prototype.removeImage = function ( id, user, tags, data, type ) {
     
-    /* Remove an image from the database */
+    var query = "INSERT INTO IMAGES (id, user, created, tags, data, type) " +
+                "VALUES (?, ?, ?, ?, ?, ?);";
+    var parameters = [id, user, new Date(), tags, data, type];
 
+    this.client.execute(query, parameters, {prepare: true}, function (err) {
+        if (err) 
+            console.log(err);
+        callback();
+    });
 };
 
-Store.prototype.addTags = function ( id, tags ) {
+Store.prototype.removeImage = function ( id, callback ) {
+    
+    /* Remove an image from the database by id */
+
+    var query = "DELETE FROM IMAGES WHERE id = ?;";
+    var parameters = [id];
+
+    this.client.execute(query, parameters, {prepare: true}, function (err) {
+        if (err) 
+            console.log(err);
+        callback();
+    });
+};
+
+Store.prototype.addTags = function ( id, tags, callback ) {
     
     /* Add tags to an image */
 
 };
 
-Store.prototype.removeTags = function ( id, tags ) {
+Store.prototype.removeTags = function ( id, tags, callback ) {
     
     /* Remove tags from an image */
 
 };
 
-Store.prototype.getImage = function ( id ) {
+Store.prototype.getImage = function ( id, callback ) {
     
     /* Retreives an image by id */
+    
+    var query = "SELECT * FROM IMAGES WHERE id = ? LIMIT 1;";
+    var parameters = [id];
+    var image = null;
 
+    this.client.eachRow(query, parameters, function (i, row) {
+        image = row;
+    }, function (err) {
+        if (err)
+            console.log(err);
+        callback(image);
+    });
 };
 
-Store.prototype.getImageByTag = function ( tag ) {
+Store.prototype.getImageByTag = function ( tag, callback ) {
     
     /* Retreives the latest image tagged by 'tag' */
 
 };
 
-Store.prototype.getImagesByTag = function ( tag ) {
+Store.prototype.getImagesByTag = function ( tag, callback ) {
 
     /* Retrieves all images by specified tag */
 

@@ -39,4 +39,22 @@ Access.prototype.removeTags = function ( id, tags ) {
 
 };
 
+Access.prototype.getImage = function ( id ) {
+    
+    /* Retreives an image by id */
+
+};
+
+Access.prototype.getImageByTag = function ( tag ) {
+    
+    /* Retreives the latest image tagged by 'tag' */
+
+};
+
+Access.prototype.getImagesByTag = function ( tag ) {
+
+    /* Retrieves all images by specified tag */
+
+};
+
 module.exports = Access;

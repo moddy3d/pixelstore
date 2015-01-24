@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /* 
- * Test Script - for testing setup, execution, and tear down
+ * Test Script - for testing!
  */
 
 try {
@@ -10,29 +10,9 @@ try {
     console.log("Cannot find nodeunit module");
 }
 
-var fs = require("fs");
-var Store = require("../db/store.js");
-
-var config = JSON.parse(fs.readFileSync("../config.json"));
 var testModules = process.argv.slice(2);
-
-function random() {
-    var id = "";
-    var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (var i = 0; i < 5; i++)
-        id += characters.charAt(Math.floor(Math.random() * characters.length));
-
-    return id;
-}
 
 // Run each test module
 testModules.forEach( function (module) {
-    
-    var store = new Store(config.cassandra);
-
-    store.setup(config.cassandra.keyspace + "_" + random(), function () {
-        reporter.run([module]);
-        store.shutdown();
-    });
+    reporter.run([module]);
 });

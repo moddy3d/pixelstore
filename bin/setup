@@ -16,8 +16,7 @@ console.log("===================\n")
 var command = process.argv[2];
 
 // Load configuration file
-var data = fs.readFileSync("../config.json");
-var config = JSON.parse(data);
+var config = JSON.parse(fs.readFileSync("../config.json"));
 
 console.log("keyspace: " + config.cassandra.keyspace);
 console.log("contactPoints: " + config.cassandra.contactPoints.join(", ") + "\n");

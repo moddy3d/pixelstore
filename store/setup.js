@@ -28,26 +28,78 @@ if (command === 'create') {
 
     console.log("Creating keyspace...");
 
-    var query = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
-                    "WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
-    console.log("Executing: \n" + query + "\n");
+    var create = "CREATE KEYSPACE " + config.cassandra.keyspace + " " +
+                 "    WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
+    console.log("Executing: \n" + create + "\n");
     
-    client.execute(query, [], {prepare: true}, function (err) {
-        if (err)
+    client.execute(create, [], {prepare: true}, function (err) {
+        if (err) {
             console.log(err);
-        else
+            client.shutdown();
+        } else {
             console.log("Keyspace " + config.cassandra.keyspace + " created...");
-        client.shutdown();
+            client.keyspace = config.cassandra.keyspace;
+            createImagesTable();
+        }
+        
+        // Create Tables
+        
+        function createImagesTable() {
+            var table = "CREATE TABLE IMAGES (" +
+                        "    ID VARCHAR PRIMARY KEY," +
+                        "    USER VARCHAR," +
+                        "    CREATED TIMESTAMP," +
+                        "    TAGS SET<VARCHAR>," +
+                        "    DATA BLOB," +
+                        "    TYPE VARCHAR," +
+                        ");";
+
+            console.log("Executing: \n" + table + "\n");
+
+            client.execute(table, [], {prepare: true}, function (err) {
+
+                if (err) {
+                    console.log(err);
+                    client.shutdown();
+                } else {
+                    console.log("Created IMAGES table.");
+                    createTagImageIndexTable();
+                }
+            });
+        };
+
+        function createTagImageIndexTable () {
+            
+            var table = "CREATE TABLE TAG_IMAGE_INDEX (" +
+                        "    TAG VARCHAR," +
+                        "    TIMESTAMP TIMEUUID," +
+                        "    IMAGE VARCHAR," +
+                        "    PRIMARY KEY (TAG, TIMESTAMP)" +
+                        ")" +
+                        "WITH CLUSTERING ORDER BY (TIMESTAMP DESC);";
+            
+            console.log("Executing: \n" + table + "\n");
+
+            client.execute(table, [], {prepare: true}, function (err) {
+
+                if (err)
+                    console.log(err);
+                else
+                    console.log("Created TAG_IMAGE_INDEX table.");
+
+                client.shutdown();
+            });
+        };
     });
 
 } else if (command === 'destroy') {
 
     console.log("Destroying keyspace...");
 
-    var query = "DROP KEYSPACE " + config.cassandra.keyspace + ";";
-    console.log("Executing: \n" + query + "\n");
+    var destroy = "DROP KEYSPACE " + config.cassandra.keyspace + ";";
+    console.log("Executing: \n" + destroy + "\n");
     
-    client.execute(query, [], {prepare: true}, function (err) {
+    client.execute(destroy, [], {prepare: true}, function (err) {
         if (err) 
             console.log(err);
         else

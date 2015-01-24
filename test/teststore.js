@@ -1,3 +1,10 @@
+/*
+ * teststore.js
+ *
+ * This testing module which purely tests the database transaction
+ * integrity of the Store class. These are fairly simple and lower level tests.
+ */
+
 var fs = require("fs");
 var uuid = require("node-uuid");
 

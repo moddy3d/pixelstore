@@ -1,40 +1,15 @@
 var fs = require("fs");
 var uuid = require("node-uuid");
+
+var utils = require("./utils.js");
 var Store = require("../db/store.js");
-
-function random() {
-    var id = "";
-    var characters = "0123456789";
-
-    for (var i = 0; i < 5; i++)
-        id += characters.charAt(Math.floor(Math.random() * characters.length));
-
-    return id;
-}
-
-function compareArrays(arrayA, arrayB) {
-
-    function is(a, b) {
-        return a === b && (a !== 0 || 1 / a === 1 / b)
-               || a !== a && b !== b; 
-    }
-
-    if (arrayA.length == arrayB.length && arrayA.every(function(u, i) {
-            return is(u, arrayB[i]);
-        })
-    ) {
-        return true;
-    } else {
-        return false;
-    }
-}
 
 module.exports = {
 
     setUp: function (callback) {
         var config = JSON.parse(fs.readFileSync(__dirname + "/../config.json"));
         this.store = new Store(config.cassandra);
-        this.keyspace = config.cassandra.keyspace + "_" + random();
+        this.keyspace = config.cassandra.keyspace + "_" + utils.random();
         
         console.log("Setting up keyspace " + this.keyspace);
         this.store.setup(this.keyspace, function () {
@@ -75,7 +50,7 @@ module.exports = {
         function verifyImage( image ) {
             test.equals(image.id, id);
             test.equals(image.user, user);
-            test.ok(compareArrays(image.tags, tags));
+            test.ok(utils.compareArrays(image.tags, tags));
             test.equals(image.type, type);
             test.equals(image.data.toString(), data.toString());
             test.done();

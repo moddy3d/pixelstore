@@ -3,6 +3,22 @@ pixelstore
 
 pixelstore is a distributed image store.
 
+service pre-requisites
+-----------------------
+
+before you set up <pre>pixelstore</pre> as a service, you will need to have an
+instances of cassandra and elasticsearch running.  check out <pre>config.json</pre>.
+
+running tests
+-------------
+
+until i find a better way...
+
+```bash
+cd test
+node test <testmodule1> <testmodule2> ...
+```
+
 about
 -----
 

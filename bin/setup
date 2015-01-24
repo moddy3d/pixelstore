@@ -1,0 +1,37 @@
+/*
+ * setup.js
+ * ========
+ * This is a setup script to create the keyspace for our
+ * store and to set-up the tables.
+ */
+
+var fs = require("fs");
+var Store = require("../db/store.js");
+
+console.log("\n===================")
+console.log("Store Set-up Script")
+console.log("===================\n")
+
+// Parse command line
+var command = process.argv[2];
+
+// Load configuration file
+var data = fs.readFileSync("../config.json");
+var config = JSON.parse(data);
+
+console.log("keyspace: " + config.cassandra.keyspace);
+console.log("contactPoints: " + config.cassandra.contactPoints.join(", ") + "\n");
+
+var store = new Store(config.cassandra);
+
+if (command === 'create') {
+    store.setup(config.cassandra.keyspace, function () {
+        store.shutdown();
+    });
+} else if (command === 'destroy') {
+    store.destroy(config.cassandra.keyspace, function () { 
+        store.shutdown();
+    });
+} else {
+    console.log("Unknown command '" + command + "'.\aAvailable commands: 'create', 'destroy'");
+}

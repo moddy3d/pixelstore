@@ -119,8 +119,7 @@ Store.prototype.addImage = function ( id, user, tags, data, type, callback ) {
     var parameters = [id, user, new Date(), tags, data, type];
 
     this.client.execute(query, parameters, {prepare: true}, function (err) {
-        if (err) 
-            console.log(err);
+        if (err) return callback(err); 
         callback();
     });
 };
@@ -133,8 +132,7 @@ Store.prototype.removeImage = function ( id, callback ) {
     var parameters = [id];
 
     this.client.execute(query, parameters, {prepare: true}, function (err) {
-        if (err) 
-            console.log(err);
+        if (err) return callback(err); 
         callback();
     });
 };
@@ -162,8 +160,7 @@ Store.prototype.getImage = function ( id, callback ) {
     this.client.eachRow(query, parameters, function (i, row) {
         image = row;
     }, function (err) {
-        if (err)
-            console.log(err);
+        if (err) return callback(err); 
         callback(null, image);
     });
 };

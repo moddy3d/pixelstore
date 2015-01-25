@@ -5,6 +5,7 @@
  */
 
 var cassandra = require("cassandra-driver");
+var async = require("async");
 
 var Store = function ( options ) {
 
@@ -36,26 +37,29 @@ Store.prototype.setup = function ( keyspace, callback ) {
 
     var this_ = this;
 
-    var create = "CREATE KEYSPACE " + keyspace +
-                 "    WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
-    
-    this.client.execute(create, [], {prepare: true}, function (err) {
-        if (err) {
-            // Error creating the keyspace, let's shutdown the client
-            console.log(err);
-            this_.client.shutdown();
-        } else {
-            // The keyspace has been successfully created, let's connect to it 
-            this_.connect(keyspace);
+    async.waterfall([
 
-            // ... and begin creating the tables
-            createImagesTable();
-        }
-        
-        // Create Tables
-        
-        function createImagesTable() {
-            var table = "CREATE TABLE IMAGES (" +
+        // Create the keyspace 
+
+        function (done) { 
+            var query = "CREATE KEYSPACE " + keyspace +
+                        "    WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
+            this_.client.execute(query, [], {prepare: true}, function (err) {
+                if (err) {
+                    console.log(err);
+                    this_.client.shutdown();
+                } else {
+                    this_.connect(keyspace);
+                    done();
+                }
+            });
+        },
+
+        // Create images table
+
+        function (done) {
+
+            var query = "CREATE TABLE IMAGES (" +
                         "    ID VARCHAR PRIMARY KEY," +
                         "    USER VARCHAR," +
                         "    CREATED TIMESTAMP," +
@@ -64,19 +68,19 @@ Store.prototype.setup = function ( keyspace, callback ) {
                         "    TYPE VARCHAR," +
                         ");";
 
-            this_.client.execute(table, [], {prepare: true}, function (err) {
-
-                if (err) {
+            this_.client.execute(query, [], {prepare: true}, function (err) {
+                if (err)
                     console.log(err);
-                } else {
-                    createTagImageIndexTable();
-                }
+                else
+                    done();
             });
-        };
-
-        function createTagImageIndexTable () {
+        },
+        
+        // Create tag index
+        
+        function (done) {
             
-            var table = "CREATE TABLE TAG_IMAGE_INDEX (" +
+            var query = "CREATE TABLE TAG_IMAGE_INDEX (" +
                         "    TAG VARCHAR," +
                         "    TIMESTAMP TIMEUUID," +
                         "    IMAGE VARCHAR," +
@@ -84,15 +88,19 @@ Store.prototype.setup = function ( keyspace, callback ) {
                         ")" +
                         "WITH CLUSTERING ORDER BY (TIMESTAMP DESC);";
 
-            this_.client.execute(table, [], {prepare: true}, function (err) {
+            this_.client.execute(query, [], {prepare: true}, function (err) {
 
                 if (err)
                     console.log(err);
 
-                if (callback)
-                    callback();
+                done();
             });
-        };
+        }
+    ], function (error, results) {
+        if (error) console.error(error);
+
+        if (callback)
+            callback();
     });
 };
     

@@ -5,8 +5,9 @@
  * integrity of the Store class. These are fairly simple and lower level tests.
  */
 
-var fs = require("fs");
-var uuid = require("node-uuid");
+var fs = require("fs"),
+    uuid = require("node-uuid"),
+    async = require("async");
 
 var utils = require("./utils.js");
 var Store = require("../db/store.js");
@@ -46,22 +47,28 @@ module.exports = {
 
         console.log("creating image with id " + id);
 
-        this.store.addImage(id, user, tags, data, type, getImage);
+        async.waterfall([
 
-        function getImage() {
-            setTimeout( function () {
-                this_.store.getImage(id, verifyImage);
-            }, 1000);
-        }
+            function (done) {
+                this_.store.addImage(id, user, tags, data, type, done);
+            },
+            
+            function (done) {
+                this_.store.getImage(id, done);
+            },
 
-        function verifyImage( image ) {
-            test.equals(image.id, id);
-            test.equals(image.user, user);
-            test.ok(utils.compareArrays(image.tags, tags));
-            test.equals(image.type, type);
-            test.equals(image.data.toString(), data.toString());
+            function (image, done) {
+                test.equals(image.id, id);
+                test.equals(image.user, user);
+                test.ok(utils.compareArrays(image.tags, tags));
+                test.equals(image.type, type);
+                test.equals(image.data.toString(), data.toString());
+                done();
+            }
+        ], function (error, results) {
+            if (error) return console.error(error);
             test.done();
-        };
+        });
     }
 
     /*

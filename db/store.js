@@ -164,7 +164,7 @@ Store.prototype.getImage = function ( id, callback ) {
     }, function (err) {
         if (err)
             console.log(err);
-        callback(image);
+        callback(null, image);
     });
 };
 

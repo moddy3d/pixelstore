@@ -42,16 +42,14 @@ Store.prototype.setup = function ( keyspace, callback ) {
         // Create the keyspace 
 
         function (done) { 
+
             var query = "CREATE KEYSPACE " + keyspace +
                         "    WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }";
+
             this_.client.execute(query, [], {prepare: true}, function (err) {
-                if (err) {
-                    console.log(err);
-                    this_.client.shutdown();
-                } else {
-                    this_.connect(keyspace);
-                    done();
-                }
+                if (err) return done(err);
+                this_.connect(keyspace);
+                done();
             });
         },
 
@@ -69,10 +67,8 @@ Store.prototype.setup = function ( keyspace, callback ) {
                         ");";
 
             this_.client.execute(query, [], {prepare: true}, function (err) {
-                if (err)
-                    console.log(err);
-                else
-                    done();
+                if (err) return done(err);
+                done();
             });
         },
         
@@ -89,18 +85,13 @@ Store.prototype.setup = function ( keyspace, callback ) {
                         "WITH CLUSTERING ORDER BY (TIMESTAMP DESC);";
 
             this_.client.execute(query, [], {prepare: true}, function (err) {
-
-                if (err)
-                    console.log(err);
-
+                if (err) return done(err);
                 done();
             });
         }
     ], function (error, results) {
-        if (error) console.error(error);
-
-        if (callback)
-            callback();
+        if (error) return console.error(error);
+        if (callback) callback();
     });
 };
     

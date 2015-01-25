@@ -57,13 +57,37 @@ module.exports = {
             if (error) return console.error(error);
             test.done();
         });
-    }
-
-    /*
-    testRemoveImage: function (test) {
-        test.ok(true, "true");
-        test.done();
     },
+
+    testRemoveImage: function (test) {
+        var this_ = this,
+            imageA = utils.generateImage();
+
+        async.waterfall([
+
+            function (done) {
+                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
+            },
+            
+            function (done) {
+                this_.store.removeImage(imageA.id, done);
+            },
+            
+            function (done) {
+                this_.store.getImage(imageA.id, done);
+            },
+
+            function (imageB, done) {
+                test.equals(imageB, null);
+                done();
+            }
+        ], function (error, results) {
+            if (error) return console.error(error);
+            test.done();
+        });
+    },
+    
+    /*
 
     testGetImageByTag: function (test) {
         test.ok(true, "true");

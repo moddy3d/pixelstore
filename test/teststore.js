@@ -33,24 +33,24 @@ module.exports = {
     testAddImage: function (test) {
             
         var this_ = this,
-            a = utils.generateImage();
+            imageA = utils.generateImage();
 
         async.waterfall([
 
             function (done) {
-                this_.store.addImage(a.id, a.user, a.tags, a.data, a.type, done);
+                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
             },
             
             function (done) {
-                this_.store.getImage(a.id, done);
+                this_.store.getImage(imageA.id, done);
             },
 
-            function (b, done) {
-                test.equals(a.id, b.id);
-                test.equals(a.user, b.user);
-                test.ok(utils.compareArrays(a.tags, b.tags));
-                test.equals(a.type, b.type);
-                test.equals(a.data.toString(), b.data.toString());
+            function (imageB, done) {
+                test.equals(imageA.id, imageB.id);
+                test.equals(imageA.user, imageB.user);
+                test.ok(utils.compareArrays(imageA.tags, imageB.tags));
+                test.equals(imageA.type, imageB.type);
+                test.equals(imageA.data.toString(), imageB.data.toString());
                 done();
             }
         ], function (error, results) {

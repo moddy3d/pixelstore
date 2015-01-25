@@ -33,36 +33,24 @@ module.exports = {
     testAddImage: function (test) {
             
         var this_ = this,
-            id = 'image_id',
-            user = "foo",
-            tags = ["tag1", "tag2"],
-            type = "image/jpeg";
-    
-        try  {
-            var data = fs.readFileSync(__dirname + "/image.jpg");
-        } catch (e) {
-            console.log(e.message);
-            throw Error(e);
-        }
-
-        console.log("creating image with id " + id);
+            a = utils.generateImage();
 
         async.waterfall([
 
             function (done) {
-                this_.store.addImage(id, user, tags, data, type, done);
+                this_.store.addImage(a.id, a.user, a.tags, a.data, a.type, done);
             },
             
             function (done) {
-                this_.store.getImage(id, done);
+                this_.store.getImage(a.id, done);
             },
 
-            function (image, done) {
-                test.equals(image.id, id);
-                test.equals(image.user, user);
-                test.ok(utils.compareArrays(image.tags, tags));
-                test.equals(image.type, type);
-                test.equals(image.data.toString(), data.toString());
+            function (b, done) {
+                test.equals(a.id, b.id);
+                test.equals(a.user, b.user);
+                test.ok(utils.compareArrays(a.tags, b.tags));
+                test.equals(a.type, b.type);
+                test.equals(a.data.toString(), b.data.toString());
                 done();
             }
         ], function (error, results) {

@@ -6,14 +6,19 @@
 
 var fs = require("fs");
 
-exports.random = function () {
+function random (characters) {
     var id = "";
-    var characters = "0123456789";
-
     for (var i = 0; i < 5; i++)
         id += characters.charAt(Math.floor(Math.random() * characters.length));
-
     return id;
+};
+
+exports.randomNumbers = function () {
+    return random("0123456789");
+}
+
+exports.randomCharacters = function () {
+    return random("abcdefghijklmnopqrstuvwxyz");
 }
 
 exports.generateImage = function () {

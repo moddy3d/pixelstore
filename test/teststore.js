@@ -18,7 +18,7 @@ module.exports = {
     setUp: function (callback) {
         var config = JSON.parse(fs.readFileSync(__dirname + "/../config.json"));
         this.store = new Store(config.cassandra);
-        this.keyspace = config.cassandra.keyspace + "_" + utils.random();
+        this.keyspace = config.cassandra.keyspace + "_" + utils.randomNumbers();
         
         console.log("Setting up keyspace " + this.keyspace);
         this.store.setup(this.keyspace, function () {
@@ -160,20 +160,15 @@ module.exports = {
         });
     },
     
-    /*
 
     testGetImageByTag: function (test) {
         test.ok(true, "true");
         test.done();
     },
 
+    /*
     testGetImagesByTag: function (test) {
         test.ok(true, "true");
-        test.done();
-    },
-
-    testRemoveTags: function (test) {
-        test.ok("yes");
         test.done();
     },
     */

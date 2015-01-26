@@ -212,6 +212,56 @@ Store.prototype.removeTags = function ( id, tags, callback ) {
     
     /* Remove tags from an image */
 
+    var this_ = this;
+
+    async.waterfall([
+
+        // Find the tag-timestamp entries from the reverse index
+
+        function (done) {
+            var query = "SELECT TAG, TIMESTAMP FROM IMAGE_TAG_TIMESTAMP_INDEX WHERE image = ? AND tag IN ?;";
+            var parameters = [id, tags];
+            var rows = [];
+
+            this_.client.eachRow(query, parameters, function (i, row) {
+                rows.push(row);
+            }, function (err) {
+                if (err) return callback(err); 
+                done(null, rows); 
+            });
+        },
+
+        // Delete from tag-timestamp index, and from images table
+        
+        function (rows, done) {
+            
+            var queries = [];
+
+            rows.forEach( function (row) {
+                queries.push({
+                    query: "DELETE FROM TAG_TIMESTAMP_IMAGE_INDEX WHERE tag = ? AND timestamp = ?;",
+                    params: [row.tag, row.timestamp]
+                });
+            });
+
+            queries.push({
+                query: "UPDATE IMAGES SET tags = tags - ? WHERE id = ?;",
+                params: [tags, id]
+            });
+
+            var options = { consistency: cassandra.types.consistencies.quorum };
+
+            this_.client.batch(queries, options, function (error) {
+                if (error) return callback(error);
+                done(null, rows);
+            });
+        },
+
+    ], function (error, results) {
+        if (error) return callback(error);
+        callback();
+    });
+
 };
 
 Store.prototype.getImage = function ( id, callback ) {

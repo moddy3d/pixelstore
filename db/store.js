@@ -220,18 +220,20 @@ Store.prototype.addTags = function ( id, tags, callback ) {
         }
     ];
 
+    var now = new Date();
+
     tags.forEach( function (tag) {
 
         queries.push({
             query: "INSERT INTO TAG_TIMESTAMP_IMAGE_INDEX (tag, \"timestamp\", image) " +
-                   "VALUES (?, now(), ?);",
-            params: [tag, id]
+                   "VALUES (?, maxTimeuuid(?), ?);",
+            params: [tag, now, id]
         });
         
         queries.push({
             query: "INSERT INTO IMAGE_TAG_TIMESTAMP_INDEX (image, tag, \"timestamp\") " +
-                   "VALUES (?, ?, now());",
-            params: [id, tag]
+                   "VALUES (?, ?, maxTimeuuid(?));",
+            params: [id, tag, now]
         });
 
     });
@@ -280,8 +282,6 @@ Store.prototype.removeTags = function ( id, tags, callback ) {
                     query: "DELETE FROM TAG_TIMESTAMP_IMAGE_INDEX WHERE tag = ? AND timestamp = ?;",
                     params: [row.tag, row.timestamp]
                 });
-
-                console.log(row.tag + ": " + row.timestamp);
 
                 queries.push({
                     query: "DELETE FROM IMAGE_TAG_TIMESTAMP_INDEX WHERE image = ? AND tag = ?;",

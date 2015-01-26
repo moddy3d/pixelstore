@@ -366,6 +366,47 @@ Store.prototype.getImagesByTag = function ( tag, callback ) {
 
     /* Retrieves all images by specified tag */
 
+    var this_ = this;
+    
+    async.waterfall([
+
+        // Select image id from tag-timestamp index
+
+        function (done) {
+            var query = "SELECT IMAGE FROM TAG_TIMESTAMP_IMAGE_INDEX WHERE tag = ?;";
+            var parameters = [tag];
+            var ids = [];
+
+            this_.client.eachRow(query, parameters, function (i, row) {
+                ids.push(row.image);
+            }, function (err) {
+                if (err) return callback(err); 
+                done(null, ids); 
+            });
+        },
+
+        // Select images from images table in parallel
+        
+        function (ids, done) {
+            
+            // Build up parallel calls
+            var calls = [];
+            ids.forEach(function (id) {
+                calls.push( function (pdone) {
+                    this_.getImage(id, pdone);
+                }); 
+            });
+
+            async.parallel(calls, function (error, images) {
+                if (error) return callback(error);
+                done(null, images);
+            });
+        },
+
+    ], function (error, images) {
+        if (error) return callback(error);
+        callback(null, images);
+    });
 };
 
 module.exports = Store;

@@ -16,23 +16,6 @@ exports.random = function () {
     return id;
 }
 
-exports.compareArrays = function (arrayA, arrayB ) {
-
-    function is(a, b) {
-        return a === b && (a !== 0 || 1 / a === 1 / b)
-               || a !== a && b !== b; 
-    }
-
-    if (arrayA.length == arrayB.length && arrayA.every(function(u, i) {
-            return is(u, arrayB[i]);
-        })
-    ) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 exports.generateImage = function () {
     
     /* Generate some image data for testing */

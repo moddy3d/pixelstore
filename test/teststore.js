@@ -49,7 +49,7 @@ module.exports = {
             function (imageB, done) {
                 test.equals(imageA.id, imageB.id);
                 test.equals(imageA.user, imageB.user);
-                test.ok(utils.compareArrays(imageA.tags, imageB.tags));
+                test.ok(_.xor(imageA.tags, imageB.tags).length === 0);
                 test.equals(imageA.type, imageB.type);
                 test.equals(imageA.data.toString(), imageB.data.toString());
                 done();
@@ -112,7 +112,7 @@ module.exports = {
             function (imageB, done) {
                 test.equals(imageA.id, imageB.id);
                 test.equals(imageA.user, imageB.user);
-                test.ok(utils.compareArrays(imageA.tags, imageB.tags));
+                test.ok(_.xor(imageA.tags, imageB.tags).length === 0);
                 test.equals(imageA.type, imageB.type);
                 test.equals(imageA.data.toString(), imageB.data.toString());
                 done();

@@ -27,9 +27,9 @@ exports.generateImage = function () {
     /* Generate some image data for testing */
 
     var image = {
-        id: 'image_id',
-        user: "foo",
-        tags: ["tag1", "tag2"],
+        id: this.randomCharacters(16),
+        user: this.randomCharacters(16),
+        tags: [this.randomCharacters(16), this.randomCharacters(16)],
         type: "image/jpeg"
     }
 
@@ -47,5 +47,5 @@ exports.generateTags = function () {
 
     /* Generate some tags for testing */
 
-    return ['tag3', 'tag4'];
+    return [this.randomCharacters(16), this.randomCharacters(16)];
 };

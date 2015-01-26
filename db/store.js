@@ -275,10 +275,19 @@ Store.prototype.removeTags = function ( id, tags, callback ) {
             var queries = [];
 
             rows.forEach( function (row) {
+
                 queries.push({
                     query: "DELETE FROM TAG_TIMESTAMP_IMAGE_INDEX WHERE tag = ? AND timestamp = ?;",
                     params: [row.tag, row.timestamp]
                 });
+
+                console.log(row.tag + ": " + row.timestamp);
+
+                queries.push({
+                    query: "DELETE FROM IMAGE_TAG_TIMESTAMP_INDEX WHERE image = ? AND tag = ?;",
+                    params: [id, row.tag]
+                });
+
             });
 
             queries.push({
@@ -290,7 +299,7 @@ Store.prototype.removeTags = function ( id, tags, callback ) {
 
             this_.client.batch(queries, options, function (error) {
                 if (error) return callback(error);
-                done(null, rows);
+                done();
             });
         },
 

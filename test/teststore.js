@@ -7,7 +7,8 @@
 
 var fs = require("fs"),
     uuid = require("node-uuid"),
-    async = require("async");
+    async = require("async"),
+    _ = require("lodash");
 
 var utils = require("./utils.js");
 var Store = require("../db/store.js");
@@ -87,6 +88,41 @@ module.exports = {
         });
     },
     
+    testAddTags: function (test) {
+
+        var this_ = this,
+            imageA = utils.generateImage();
+
+        async.waterfall([
+
+            function (done) {
+                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
+            },
+            
+            function (done) {
+                var tags = utils.generateTags();
+                imageA.tags = _.union(imageA.tags, tags);
+                this_.store.addTags(imageA.id, tags, done);
+            },
+            
+            function (done) {
+                this_.store.getImage(imageA.id, done);
+            },
+
+            function (imageB, done) {
+                test.equals(imageA.id, imageB.id);
+                test.equals(imageA.user, imageB.user);
+                test.ok(utils.compareArrays(imageA.tags, imageB.tags));
+                test.equals(imageA.type, imageB.type);
+                test.equals(imageA.data.toString(), imageB.data.toString());
+                done();
+            }
+        ], function (error, results) {
+            if (error) return console.error(error);
+            test.done();
+        });
+    },
+    
     /*
 
     testGetImageByTag: function (test) {
@@ -99,10 +135,6 @@ module.exports = {
         test.done();
     },
 
-    testAddTags: function (test) {
-        test.ok("yes");
-        test.done();
-    },
 
     testRemoveTags: function (test) {
         test.ok("yes");

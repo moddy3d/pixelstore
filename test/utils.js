@@ -53,3 +53,10 @@ exports.generateImage = function () {
     
     return image;
 };
+
+exports.generateTags = function () {
+
+    /* Generate some tags for testing */
+
+    return ['tag3', 'tag4'];
+};

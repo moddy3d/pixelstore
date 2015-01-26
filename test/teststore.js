@@ -160,10 +160,48 @@ module.exports = {
         });
     },
     
-
     testGetImageByTag: function (test) {
-        test.ok(true, "true");
-        test.done();
+
+        var this_ = this,
+            source1 = utils.generateImage(),
+            source2 = utils.generateImage();
+
+        // Make sure both images will have the same tags
+        source1.tags = ['tag1'];
+        source2.tags = ['tag1'];
+
+        async.waterfall([
+
+            // Add two images to store, source1 goes first, then source2
+
+            function (done) {
+                this_.store.addImage(source1.id, source1.user, source1.tags, source1.data, source1.type, done);
+            },
+            
+            function (done) {
+                this_.store.addImage(source2.id, source2.user, source2.tags, source2.data, source2.type, done);
+            },
+
+            // Get image by one of those tags
+            
+            function (done) {
+                this_.store.getImageByTag(source1.tags[0], done);
+            },
+
+            // The returned image should be source2 because it was tagged *after* source1
+
+            function (target, done) {
+                test.equals(source2.id, target.id);
+                test.equals(source2.user, target.user);
+                test.ok(_.xor(source2.tags, target.tags).length === 0);
+                test.equals(source2.type, target.type);
+                test.equals(source2.data.toString(), target.data.toString());
+                done();
+            }
+        ], function (error, results) {
+            if (error) return console.error(error);
+            test.done();
+        });
     },
 
     /*

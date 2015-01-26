@@ -330,6 +330,36 @@ Store.prototype.getImageByTag = function ( tag, callback ) {
     
     /* Retreives the latest image tagged by 'tag' */
 
+    var this_ = this;
+    
+    async.waterfall([
+
+        // Select image id from tag-timestamp index
+
+        function (done) {
+            var query = "SELECT IMAGE FROM TAG_TIMESTAMP_IMAGE_INDEX WHERE tag = ? LIMIT 1;";
+            var parameters = [tag];
+            var id = null;
+
+            this_.client.eachRow(query, parameters, function (i, row) {
+                id = row.image;
+            }, function (err) {
+                if (err) return callback(err); 
+                done(null, id); 
+            });
+        },
+
+        // Select image from images table
+        
+        function (id, done) {
+            this_.getImage(id, done);
+        },
+
+    ], function (error, image) {
+        if (error) return callback(error);
+        callback(null, image);
+    });
+
 };
 
 Store.prototype.getImagesByTag = function ( tag, callback ) {

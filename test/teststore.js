@@ -123,6 +123,43 @@ module.exports = {
         });
     },
     
+    testRemoveTags: function (test) {
+
+        var this_ = this,
+            imageA = utils.generateImage(),
+            tags = utils.generateTags();
+
+        imageA.tags = _.union(imageA.tags, tags);
+
+        async.waterfall([
+
+            function (done) {
+                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
+            },
+            
+            function (done) {
+                imageA.tags = _.difference(imageA.tags, tags);
+                this_.store.removeTags(imageA.id, tags, done);
+            },
+            
+            function (done) {
+                this_.store.getImage(imageA.id, done);
+            },
+
+            function (imageB, done) {
+                test.equals(imageA.id, imageB.id);
+                test.equals(imageA.user, imageB.user);
+                test.ok(_.xor(imageA.tags, imageB.tags).length === 0);
+                test.equals(imageA.type, imageB.type);
+                test.equals(imageA.data.toString(), imageB.data.toString());
+                done();
+            }
+        ], function (error, results) {
+            if (error) return console.error(error);
+            test.done();
+        });
+    },
+    
     /*
 
     testGetImageByTag: function (test) {
@@ -132,12 +169,6 @@ module.exports = {
 
     testGetImagesByTag: function (test) {
         test.ok(true, "true");
-        test.done();
-    },
-
-
-    testRemoveTags: function (test) {
-        test.ok("yes");
         test.done();
     },
 

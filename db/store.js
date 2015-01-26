@@ -72,17 +72,34 @@ Store.prototype.setup = function ( keyspace, callback ) {
             });
         },
         
-        // Create tag index
+        // Create tag-timestamp image index
         
         function (done) {
             
-            var query = "CREATE TABLE TAG_IMAGE_INDEX (" +
+            var query = "CREATE TABLE TAG_TIMESTAMP_IMAGE_INDEX (" +
                         "    TAG VARCHAR," +
                         "    TIMESTAMP TIMEUUID," +
                         "    IMAGE VARCHAR," +
                         "    PRIMARY KEY (TAG, TIMESTAMP)" +
                         ")" +
                         "WITH CLUSTERING ORDER BY (TIMESTAMP DESC);";
+
+            this_.client.execute(query, [], {prepare: true}, function (err) {
+                if (err) return done(err);
+                done();
+            });
+        },
+
+        // Create image-tag timestamp index
+        
+        function (done) {
+            
+            var query = "CREATE TABLE IMAGE_TAG_TIMESTAMP_INDEX (" +
+                        "    IMAGE VARCHAR," +
+                        "    TAG VARCHAR," +
+                        "    TIMESTAMP TIMEUUID," +
+                        "    PRIMARY KEY (IMAGE, TAG)" +
+                        ");";
 
             this_.client.execute(query, [], {prepare: true}, function (err) {
                 if (err) return done(err);
@@ -167,11 +184,19 @@ Store.prototype.addTags = function ( id, tags, callback ) {
     ];
 
     tags.forEach( function (tag) {
+
         queries.push({
-            query: "INSERT INTO TAG_IMAGE_INDEX (tag, \"timestamp\", image) " +
-                   "VALUES (?, now(), ?)",
+            query: "INSERT INTO TAG_TIMESTAMP_IMAGE_INDEX (tag, \"timestamp\", image) " +
+                   "VALUES (?, now(), ?);",
             params: [tag, id]
         });
+        
+        queries.push({
+            query: "INSERT INTO IMAGE_TAG_TIMESTAMP_INDEX (image, tag, \"timestamp\") " +
+                   "VALUES (?, ?, now());",
+            params: [id, tag]
+        });
+
     });
     
     var options = { consistency: cassandra.types.consistencies.quorum };

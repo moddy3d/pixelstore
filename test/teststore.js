@@ -204,11 +204,51 @@ module.exports = {
         });
     },
 
-    /*
     testGetImagesByTag: function (test) {
-        test.ok(true, "true");
-        test.done();
+
+        var this_ = this,
+            source1 = utils.generateImage(),
+            source2 = utils.generateImage(),
+            tag = 'mytag';
+
+        // Make sure both images will have the same tags
+        source1.tags = [tag];
+        source2.tags = [tag];
+
+        async.waterfall([
+
+            // Add two images to store, source1 goes first, then source2
+
+            function (done) {
+                this_.store.addImage(source1.id, source1.user, source1.tags, source1.data, source1.type, done);
+            },
+            
+            function (done) {
+                this_.store.addImage(source2.id, source2.user, source2.tags, source2.data, source2.type, done);
+            },
+
+            // Get all images by the pre-defined tag
+            
+            function (done) {
+                this_.store.getImagesByTag(tag, done);
+            },
+
+            // source2 should be in index 0 because it is the last image to be fetched,
+            // the index remains consistent thanks to async.parallel keeping the returned
+            // results in place of the original order returned from the tag-timestamp index
+            // regardless of which task returns first
+
+            function (images, done) {
+                var target2 = images[0];
+                var target1 = images[1];
+                test.equals(source2.id, target2.id);
+                test.equals(source1.id, target1.id);
+                done();
+            }
+        ], function (error, results) {
+            if (error) return console.error(error);
+            test.done();
+        });
     },
-    */
 };
 

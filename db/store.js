@@ -162,12 +162,49 @@ Store.prototype.addImage = function ( id, user, tags, data, type, callback ) {
 Store.prototype.removeImage = function ( id, callback ) {
     
     /* Remove an image from the database by id */
+    
+    var this_ = this;
 
-    var query = "DELETE FROM IMAGES WHERE id = ?;";
-    var parameters = [id];
+    async.waterfall([
 
-    this.client.execute(query, parameters, {prepare: true}, function (err) {
-        if (err) return callback(err); 
+        // Select tags, 
+        
+        function (done) {
+       
+            var query = "SELECT TAGS FROM IMAGES WHERE id = ? LIMIT 1;";
+            var parameters = [id];
+            var tags = null;
+
+            this_.client.eachRow(query, parameters, function (i, row) {
+                tags = row.tags;
+            }, function (err) {
+                if (err) return done(err); 
+                done(null, tags);
+            });
+
+        },
+
+        // .. and delete from indices first
+        
+         function (tags, done) {
+            this_.removeTags(id, tags, done);
+         },
+
+        // finally, delete from images table
+
+        function (done) {
+
+            var query = "DELETE FROM IMAGES WHERE id = ?;";
+            var parameters = [id];
+
+            this_.client.execute(query, parameters, {prepare: true}, function (err) {
+                if (err) return done(err); 
+                done();
+            });
+        },
+
+    ], function (error, results) {
+        if (error) return callback(error);
         callback();
     });
 };

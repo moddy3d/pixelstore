@@ -113,15 +113,33 @@ Store.prototype.destroy = function ( keyspace, callback ) {
 Store.prototype.addImage = function ( id, user, tags, data, type, callback ) {
     
     /* Add a new image to the database */
-    
-    var query = "INSERT INTO IMAGES (id, user, created, tags, data, type) " +
-                "VALUES (?, ?, ?, ?, ?, ?);";
-    var parameters = [id, user, new Date(), tags, data, type];
 
-    this.client.execute(query, parameters, {prepare: true}, function (err) {
-        if (err) return callback(err); 
+    var this_ = this;
+    
+    async.waterfall([
+
+        // Create the keyspace 
+
+        function (done) { 
+
+            var query = "INSERT INTO IMAGES (id, user, created, tags, data, type) " +
+                        "VALUES (?, ?, ?, {}, ?, ?);";
+            var parameters = [id, user, new Date(), data, type];
+
+            this_.client.execute(query, parameters, {prepare: true}, function (err) {
+                if (err) return done(err); 
+                done();
+            });
+        },
+
+        function (done) {
+            this_.addTags( id, tags, done );
+        }
+    ], function (error, results) {
+        if (error) return callback(error);
         callback();
     });
+
 };
 
 Store.prototype.removeImage = function ( id, callback ) {
@@ -140,6 +158,28 @@ Store.prototype.removeImage = function ( id, callback ) {
 Store.prototype.addTags = function ( id, tags, callback ) {
     
     /* Add tags to an image */
+
+    var queries = [
+        {
+            query: "UPDATE IMAGES SET tags = tags + ? WHERE id = ?;",
+            params: [tags, id]
+        }
+    ];
+
+    tags.forEach( function (tag) {
+        queries.push({
+            query: "INSERT INTO TAG_IMAGE_INDEX (tag, \"timestamp\", image) " +
+                   "VALUES (?, now(), ?)",
+            params: [tag, id]
+        });
+    });
+    
+    var options = { consistency: cassandra.types.consistencies.quorum };
+
+    this.client.batch(queries, options, function (error) {
+        if (error) return callback(error);
+        callback();
+    });
 
 };
 

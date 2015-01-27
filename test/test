@@ -4,15 +4,63 @@
  * Test Script - for testing!
  */
 
-try {
-    var reporter = require("nodeunit").reporters.default;
-} catch (e) {
-    console.log("Cannot find nodeunit module");
-}
+// Drop all test keyspaces before starting tests
 
-var testModules = process.argv.slice(2);
+var cassandra = require("cassandra-driver"),
+    async = require("async"),
+    config = require("../config.js")();
 
-// Run each test module
-testModules.forEach( function (module) {
-    reporter.run([module]);
+var client = new cassandra.Client({contactPoints: config.cassandra.contactPoints});
+client.keyspace = "system";
+var query = "SELECT keyspace_name from schema_keyspaces;";
+var keyspaces = [];
+
+client.eachRow(query, [], function (i, row) {
+    keyspaces.push(row.keyspace_name);        
+}, function (err) {
+    if (err) return console.error(err); 
+
+    keyspaces = keyspaces.filter(function (keyspace) {
+        return keyspace.indexOf(config.cassandra.keyspace + "_test_") > -1;
+    });
+
+    var tasks = keyspaces.map(function (keyspace) {
+        return function (done) {
+            var dropQuery = "DROP KEYSPACE " + keyspace;
+            client.execute(dropQuery, [], {prepare: true}, function (err) {
+                if (err) return done(err);
+                console.log("Dropped keyspace '" + keyspace + "'.");
+                done();
+            });
+        };
+    });
+
+    async.series(tasks, function (err, results) {
+        if (err) console.error(err);
+        client.shutdown();
+        beginTests();
+    });
 });
+
+
+// Begin Testing
+
+function beginTests() {
+
+    // Create reporter
+
+    try {
+        var reporter = require("nodeunit").reporters.default;
+    } catch (e) {
+        console.log("Cannot find nodeunit module");
+    }
+
+    // Run through test modules
+
+    var testModules = process.argv.slice(2);
+
+    // Run each test module
+    testModules.forEach( function (module) {
+        reporter.run([module]);
+    });
+};

@@ -1,8 +1,7 @@
 /*
- * setup.js
- * ========
- * This is a setup script to create the keyspace for our
- * store and to set-up the tables.
+ * setup_store.js
+ * ==============
+ * This is a setup script to create our store
  */
 
 var fs = require("fs");

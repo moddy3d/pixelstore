@@ -18,7 +18,7 @@ module.exports = {
     setUp: function (callback) {
         var config = JSON.parse(fs.readFileSync(__dirname + "/../config.json"));
         this.store = new Store(config.cassandra);
-        this.keyspace = config.cassandra.keyspace + "_" + utils.randomNumbers();
+        this.keyspace = config.cassandra.keyspace + "_test_" + utils.randomNumbers();
         
         console.log("Setting up keyspace " + this.keyspace);
         this.store.setup(this.keyspace, function () {

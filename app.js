@@ -13,7 +13,7 @@ var images = require('./routes/images');
 var app = express();
 
 // Save config & connect to store
-app.locals.config = require("./config.json");
+app.locals.config = require("./config.js")();
 app.locals.store = new Store(app.locals.config.cassandra);
 app.locals.store.connect(app.locals.config.cassandra.keyspace);
 

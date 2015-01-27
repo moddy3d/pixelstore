@@ -4,11 +4,17 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var Store = require("./db/store.js");
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+// Save config & connect to store
+app.locals.config = require("./config.json");
+app.locals.store = new Store(app.locals.config.cassandra);
+app.locals.store.connect(app.locals.config.cassandra.keyspace);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

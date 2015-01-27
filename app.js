@@ -8,6 +8,7 @@ var Store = require("./db/store.js");
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var images = require('./routes/images');
 
 var app = express();
 
@@ -28,8 +29,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Add reference of store to response locals
+app.use(function (req, res, next) {
+    res.locals.store = app.locals.store;
+    next();
+});
+
 app.use('/', routes);
 app.use('/users', users);
+app.use('/images', images);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

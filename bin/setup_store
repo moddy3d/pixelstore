@@ -4,7 +4,7 @@
  * This is a setup script to create our store
  */
 
-var fs = require("fs");
+var config = require("../config.js");
 var Store = require("../db/store.js");
 
 console.log("\n===================")
@@ -13,9 +13,6 @@ console.log("===================\n")
 
 // Parse command line
 var command = process.argv[2];
-
-// Load configuration file
-var config = JSON.parse(fs.readFileSync("../config.json"));
 
 console.log("keyspace: " + config.cassandra.keyspace);
 console.log("contactPoints: " + config.cassandra.contactPoints.join(", ") + "\n");

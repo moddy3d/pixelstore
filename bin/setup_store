@@ -4,7 +4,7 @@
  * This is a setup script to create our store
  */
 
-var config = require("../config.js");
+var config = require("../config.js")();
 var Store = require("../db/store.js");
 
 console.log("\n===================")

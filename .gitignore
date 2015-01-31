@@ -1,1 +1,3 @@
-*.swp
+*.sw[pomn]
+node_modules
+

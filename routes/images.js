@@ -12,7 +12,10 @@ router.route('/:image_id')
     .post(function (req, res, next) {
         var id = req.params.image_id;
         var image = req.body;
+
+        // TODO Maybe a validation step here?
         image.data = new Buffer(image.data);
+
         res.locals.store.addImage(id, image.user, image.tags, 
                                   image.data, image.type, function (error, results) {
             if (error) return next();
@@ -25,6 +28,7 @@ router.route('/:image_id')
     .get(function(req, res, next) {
         var id = req.params.image_id;
 
+        // TODO Allow selective column retrieval for optimization
         res.locals.store.getImage(id, function (error, image) {
             if (error || !image) return next();
 

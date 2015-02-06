@@ -108,6 +108,10 @@ module.exports = {
                 test.equals(source.user, target.user);
                 test.ok(_.xor(source.tags, target.tags).length === 0);
                 test.equals(source.type, target.type);
+                
+                // FIXME the below test doesn't seem to work... need to read up on strings/buffers
+                //test.equals(source.data.toString(), target.data.toString());
+                
                 done();
             }
         ], function (error, results) {

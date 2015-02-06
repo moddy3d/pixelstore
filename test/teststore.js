@@ -34,24 +34,24 @@ module.exports = {
     testAddImage: function (test) {
             
         var this_ = this,
-            imageA = utils.generateImage();
+            source = utils.generateImage();
 
         async.waterfall([
 
             function (done) {
-                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
+                this_.store.addImage(source.id, source.user, source.tags, source.data, source.type, done);
             },
             
             function (done) {
-                this_.store.getImage(imageA.id, done);
+                this_.store.getImage(source.id, done);
             },
 
-            function (imageB, done) {
-                test.equals(imageA.id, imageB.id);
-                test.equals(imageA.user, imageB.user);
-                test.ok(_.xor(imageA.tags, imageB.tags).length === 0);
-                test.equals(imageA.type, imageB.type);
-                test.equals(imageA.data.toString(), imageB.data.toString());
+            function (target, done) {
+                test.equals(source.id, target.id);
+                test.equals(source.user, target.user);
+                test.ok(_.xor(source.tags, target.tags).length === 0);
+                test.equals(source.type, target.type);
+                test.equals(source.data.toString(), target.data.toString());
                 done();
             }
         ], function (error, results) {
@@ -62,24 +62,24 @@ module.exports = {
 
     testRemoveImage: function (test) {
         var this_ = this,
-            imageA = utils.generateImage();
+            source = utils.generateImage();
 
         async.waterfall([
 
             function (done) {
-                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
+                this_.store.addImage(source.id, source.user, source.tags, source.data, source.type, done);
             },
             
             function (done) {
-                this_.store.removeImage(imageA.id, done);
+                this_.store.removeImage(source.id, done);
             },
             
             function (done) {
-                this_.store.getImage(imageA.id, done);
+                this_.store.getImage(source.id, done);
             },
 
-            function (imageB, done) {
-                test.equals(imageB, null);
+            function (target, done) {
+                test.equals(target, null);
                 done();
             }
         ], function (error, results) {
@@ -91,30 +91,30 @@ module.exports = {
     testAddTags: function (test) {
 
         var this_ = this,
-            imageA = utils.generateImage();
+            source = utils.generateImage();
 
         async.waterfall([
 
             function (done) {
-                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
+                this_.store.addImage(source.id, source.user, source.tags, source.data, source.type, done);
             },
             
             function (done) {
                 var tags = utils.generateTags();
-                imageA.tags = _.union(imageA.tags, tags);
-                this_.store.addTags(imageA.id, tags, done);
+                source.tags = _.union(source.tags, tags);
+                this_.store.addTags(source.id, tags, done);
             },
             
             function (done) {
-                this_.store.getImage(imageA.id, done);
+                this_.store.getImage(source.id, done);
             },
 
-            function (imageB, done) {
-                test.equals(imageA.id, imageB.id);
-                test.equals(imageA.user, imageB.user);
-                test.ok(_.xor(imageA.tags, imageB.tags).length === 0);
-                test.equals(imageA.type, imageB.type);
-                test.equals(imageA.data.toString(), imageB.data.toString());
+            function (target, done) {
+                test.equals(source.id, target.id);
+                test.equals(source.user, target.user);
+                test.ok(_.xor(source.tags, target.tags).length === 0);
+                test.equals(source.type, target.type);
+                test.equals(source.data.toString(), target.data.toString());
                 done();
             }
         ], function (error, results) {
@@ -126,32 +126,32 @@ module.exports = {
     testRemoveTags: function (test) {
 
         var this_ = this,
-            imageA = utils.generateImage(),
+            source = utils.generateImage(),
             tags = utils.generateTags();
 
-        imageA.tags = _.union(imageA.tags, tags);
+        source.tags = _.union(source.tags, tags);
 
         async.waterfall([
 
             function (done) {
-                this_.store.addImage(imageA.id, imageA.user, imageA.tags, imageA.data, imageA.type, done);
+                this_.store.addImage(source.id, source.user, source.tags, source.data, source.type, done);
             },
             
             function (done) {
-                imageA.tags = _.difference(imageA.tags, tags);
-                this_.store.removeTags(imageA.id, tags, done);
+                source.tags = _.difference(source.tags, tags);
+                this_.store.removeTags(source.id, tags, done);
             },
             
             function (done) {
-                this_.store.getImage(imageA.id, done);
+                this_.store.getImage(source.id, done);
             },
 
-            function (imageB, done) {
-                test.equals(imageA.id, imageB.id);
-                test.equals(imageA.user, imageB.user);
-                test.ok(_.xor(imageA.tags, imageB.tags).length === 0);
-                test.equals(imageA.type, imageB.type);
-                test.equals(imageA.data.toString(), imageB.data.toString());
+            function (target, done) {
+                test.equals(source.id, target.id);
+                test.equals(source.user, target.user);
+                test.ok(_.xor(source.tags, target.tags).length === 0);
+                test.equals(source.type, target.type);
+                test.equals(source.data.toString(), target.data.toString());
                 done();
             }
         ], function (error, results) {

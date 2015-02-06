@@ -54,8 +54,10 @@ module.exports = {
 
             function (done) {
 
+                // Add a new image
+
                 var options = {
-                    url:  this_.address + "/images",
+                    url:  this_.address + "/images/" + source.id,
                     body: source,
                     json: true,
                 };
@@ -67,6 +69,8 @@ module.exports = {
             },
             
             function (done) {
+                
+                // Retrieves the metadata of the new image
 
                 var options = {
                     url:  this_.address + "/images/" + source.id,
@@ -82,6 +86,8 @@ module.exports = {
             },
             
             function (target, done) {
+                
+                // Retrieves the image data of the new image
 
                 var options = {
                     url:  this_.address + "/images/" + source.id,

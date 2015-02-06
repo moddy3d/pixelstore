@@ -2,20 +2,26 @@ var express = require('express');
 var async = require('async');
 var router = express.Router();
 
-router.route('')
+
+router.route('/:image_id')
+
+    /* POST image by id 
+     * Pushes a new image to the store
+     */
+
     .post(function (req, res, next) {
+        var id = req.params.image_id;
         var image = req.body;
         image.data = new Buffer(image.data);
-        res.locals.store.addImage(image.id, image.user, image.tags, 
+        res.locals.store.addImage(id, image.user, image.tags, 
                                   image.data, image.type, function (error, results) {
             if (error) return next();
             res.end();
         });
-    });
-
-router.route('/:image_id')
+    })
 
     /* GET image by id */
+
     .get(function(req, res, next) {
         var id = req.params.image_id;
 

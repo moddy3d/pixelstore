@@ -40,6 +40,18 @@ router.route('/:image_id')
                 res.send(image.data);
             }
         });
+    })
+    
+    /* DELETE image by id */
+    
+    .delete(function(req, res, next) {
+        var id = req.params.image_id;
+        res.locals.store.removeImage(id, function (error) {
+            if (error) return next();
+            res.json({
+                status: 'success'
+            });
+        });
     });
 
 module.exports = router;

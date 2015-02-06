@@ -118,5 +118,71 @@ module.exports = {
             if (error) return console.error(error);
             test.done();
         });
+    },
+
+    // FIXME this test is causes the cass client or server unable to shutdown
+    testDeleteImages: function (test) {
+
+        var this_ = this,
+            source = utils.generateImage();
+
+        source.data = source.data.toString();
+
+        async.waterfall([
+
+            function (done) {
+
+                // Add a new image
+
+                var options = {
+                    url:  this_.address + "/images/" + source.id,
+                    body: source,
+                    json: true,
+                };
+
+                request.put(options, function (error, response, body) {
+                    if (error) return done(error);
+                    done();
+                });
+            },
+            
+            function (done) {
+                
+                // Retrieves the metadata of the new image
+
+                var options = {
+                    url:  this_.address + "/images/" + source.id,
+                };
+
+                request.del(options, function (error, response, body) {
+                    if (error) return done(error);
+                    body = JSON.parse(body);
+                    test.equals(body.status, 'success');
+                    done();
+                });
+            },
+            
+            function (done) {
+                
+                // *Tries* retrieves the metadata of the new image
+
+                var options = {
+                    url:  this_.address + "/images/" + source.id,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                };
+
+                request.get(options, function (error, response, body) {
+                    if (error || response.statusCode !== 200) 
+                        return done(error, response);
+                    done(null, JSON.parse(body));
+                });
+            },
+            
+        ], function (error, results) {
+            test.equals(results.statusCode, 404);
+            test.done();
+        });
     }
 };

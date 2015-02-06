@@ -5,11 +5,11 @@ var router = express.Router();
 
 router.route('/:image_id')
 
-    /* POST image by id 
+    /* PUT image by id 
      * Pushes a new image to the store
      */
 
-    .post(function (req, res, next) {
+    .put(function (req, res, next) {
         var id = req.params.image_id;
         var image = req.body;
 

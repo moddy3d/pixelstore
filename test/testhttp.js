@@ -43,7 +43,7 @@ module.exports = {
         this.server.close(callback);
     },
 
-    testPostImages: function (test) {
+    testPutImages: function (test) {
 
         var this_ = this,
             source = utils.generateImage();
@@ -62,7 +62,7 @@ module.exports = {
                     json: true,
                 };
 
-                request.post(options, function (error, response, body) {
+                request.put(options, function (error, response, body) {
                     if (error) done(error);
                     done();
                 });

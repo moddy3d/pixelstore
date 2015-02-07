@@ -119,6 +119,83 @@ module.exports = {
             test.done();
         });
     },
+    
+    testPostImages: function (test) {
+
+        var this_ = this,
+            source = utils.generateImage(),
+            tags = utils.generateTags();
+
+        source.data = source.data.toString();
+
+        async.waterfall([
+
+            function (done) {
+
+                // Add a new image
+
+                var options = {
+                    url:  this_.address + "/images/" + source.id,
+                    body: source,
+                    json: true,
+                };
+
+                request.put(options, function (error, response, body) {
+                    if (error) return done(error);
+                    done();
+                });
+            },
+            
+            function (done) {
+                
+                // Adds new tags
+                
+                source.tags = _.union(source.tags, tags);
+
+                var options = {
+                    url:  this_.address + "/images/" + source.id,
+                    body: {
+                        tags: {
+                            add: tags,
+                        }
+                    },
+                    json: true,
+                };
+
+                request.post(options, function (error, response, target) {
+                    if (error) return done(error);
+                    test.equals(_.difference(target.tags, source.tags).length, 0);
+                    done();
+                });
+            },
+            
+            function (done) {
+                
+                // Remove the tags
+                
+                source.tags = _.difference(source.tags, tags);
+
+                var options = {
+                    url:  this_.address + "/images/" + source.id,
+                    body: {
+                        tags: {
+                            remove: tags,
+                        }
+                    },
+                    json: true,
+                };
+
+                request.post(options, function (error, response, target) {
+                    if (error) return done(error);
+                    test.equals(_.difference(target.tags, source.tags).length, 0);
+                    done();
+                });
+            }
+            
+        ], function (error, results) {
+            test.done();
+        });
+    },
 
     // FIXME this test is causes the cass client or server unable to shutdown
     testDeleteImages: function (test) {

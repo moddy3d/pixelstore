@@ -42,6 +42,43 @@ router.route('/:image_id')
         });
     })
     
+    /* POST (update) image by id */
+
+    .post(function(req, res, next) {
+
+        var id = req.params.image_id;
+        var actions = [];
+
+        if (req.body.tags) {
+
+            // Add tags action
+            if (req.body.tags.add) {
+                actions.push( function (done) {
+                    res.locals.store.addTags(id, req.body.tags.add, done);
+                });
+            }
+
+            // Remove tags action
+            if (req.body.tags.remove) {
+                actions.push( function (done) {
+                    res.locals.store.removeTags(id, req.body.tags.remove, done);
+                });
+            }
+        }
+
+        // We would like to return the users the metadata of the 
+        // image after the update 
+        actions.push( function (done) {
+            res.locals.store.getImage(id, done);
+        });
+
+        async.waterfall(actions, function (error, image) {
+            if (error || !image) return next();
+            delete image.data;
+            res.json(image);
+        });
+    })
+    
     /* DELETE image by id */
     
     .delete(function(req, res, next) {

@@ -9,6 +9,15 @@ service pre-requisites
 before you set up `pixelstore` as a service, you will need to have an
 instance of cassandra running.  check out `config.json`.
 
+installing
+----------
+
+```bash
+git clone https://github.com/moddy3d/pixelstore.git
+cd pixelstore
+npm install
+```
+
 running tests
 -------------
 

@@ -237,5 +237,75 @@ module.exports = {
             test.equals(results.statusCode, 404);
             test.done();
         });
+    },
+
+    testGetByTag: function (test) {
+
+        var this_ = this,
+            tags = utils.generateTags();
+            source1 = utils.generateImage(),
+            source2 = utils.generateImage();
+
+        source1.tags = tags;
+        source2.tags = tags;
+
+        source1.data = source1.data.toString();
+        source2.data = source2.data.toString();
+
+        async.waterfall([
+
+            generatePutImageRequest(this_.address + "/images/" + source1.id, source2),
+            generatePutImageRequest(this_.address + "/images/" + source2.id, source2),
+            
+            function (done) {
+                
+                // Retrieves the metadata of the new image
+
+                var options = {
+                    url:  this_.address + "/tags/" + source1.tags[0],
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                };
+
+                request.get(options, function (error, response, body) {
+                    if (error) done(error);
+                    done(null, JSON.parse(body));
+                });
+            },
+            
+            function (target, done) {
+                
+                // Retrieves the image data of the new image
+
+                var options = {
+                    url:  this_.address + "/tags/" + source1.tags[0],
+                    headers: {
+                        'Accept': 'image/jpeg'
+                    }
+                };
+
+                request.get(options, function (error, response, body) {
+                    if (error) done(error);
+                    target.data = body;
+                    done(null, target);
+                });
+            },
+
+            function (target, done) {
+
+                // The target should match source2
+                // because it was tagged *after* source1
+                test.equals(source2.id, target.id);
+                test.equals(source2.user, target.user);
+                test.ok(_.xor(source2.tags, target.tags).length === 0);
+                test.equals(source2.type, target.type);
+                
+                done();
+            }
+        ], function (error, results) {
+            if (error) return console.error(error);
+            test.done();
+        });
     }
 };

@@ -1,13 +1,13 @@
 pixelstore
 ==========
 
-pixelstore is a distributed image store.
+pixelstore is a distributed image store with a RESTful interface.
 
 service pre-requisites
 -----------------------
 
 before you set up `pixelstore` as a service, you will need to have an
-instances of cassandra and elasticsearch running.  check out `config.json`.
+instance of cassandra running.  check out `config.json`.
 
 running tests
 -------------
@@ -22,4 +22,4 @@ node test <testmodule1> <testmodule2> ...
 about
 -----
 
-this project was a personal exercise to learn express, and the node.js clients for cassandra & elasticsearch.
+this project was a personal exercise to learn node, express, and clients such as that for cassandra.

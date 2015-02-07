@@ -13,6 +13,24 @@ var fs = require("fs"),
     utils = require("./utils.js"),
     Store = require("../db/store.js");
 
+var generatePutImageRequest = function (address, image) {
+
+    // Returns a function for adding a new image via http PUT
+    
+    return function (done) {
+        var options = {
+            url:  address,
+            body: image,
+            json: true,
+        };
+
+        request.put(options, function (error, response, body) {
+            if (error) done(error);
+            done();
+        });
+    }
+};
+
 module.exports = {
 
     setUp: function (callback) {
@@ -52,21 +70,7 @@ module.exports = {
 
         async.waterfall([
 
-            function (done) {
-
-                // Add a new image
-
-                var options = {
-                    url:  this_.address + "/images/" + source.id,
-                    body: source,
-                    json: true,
-                };
-
-                request.put(options, function (error, response, body) {
-                    if (error) done(error);
-                    done();
-                });
-            },
+            generatePutImageRequest(this_.address + "/images/" + source.id, source),
             
             function (done) {
                 
@@ -130,21 +134,7 @@ module.exports = {
 
         async.waterfall([
 
-            function (done) {
-
-                // Add a new image
-
-                var options = {
-                    url:  this_.address + "/images/" + source.id,
-                    body: source,
-                    json: true,
-                };
-
-                request.put(options, function (error, response, body) {
-                    if (error) return done(error);
-                    done();
-                });
-            },
+            generatePutImageRequest(this_.address + "/images/" + source.id, source),
             
             function (done) {
                 
@@ -207,21 +197,7 @@ module.exports = {
 
         async.waterfall([
 
-            function (done) {
-
-                // Add a new image
-
-                var options = {
-                    url:  this_.address + "/images/" + source.id,
-                    body: source,
-                    json: true,
-                };
-
-                request.put(options, function (error, response, body) {
-                    if (error) return done(error);
-                    done();
-                });
-            },
+            generatePutImageRequest(this_.address + "/images/" + source.id, source),
             
             function (done) {
                 
